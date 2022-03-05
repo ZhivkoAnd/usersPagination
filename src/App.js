@@ -2,43 +2,37 @@ import "./App.css";
 import { useEffect, useState } from "react";
 
 const App = () => {
-  const [userInfos, setUserInfos] = useState("");
-  const [nextPageNumber, setNextPageNumber] = useState(1);
+  const [data, setData] = useState("");
+  const [pageNumber, setPageNumber] = useState(1);
 
-  const fetchNextUser = () => {
-    const fetchRandomData = async (pageNumber) => {
+  const fetchUsers = () => {
+    const fetchData = async (pagenumber) => {
       const result = await fetch(
-        `https://randomuser.me/api?page=${pageNumber}`
+        `https://randomuser.me/api?page=${pagenumber}`
       );
-      const data = await result.json();
-      // userInfos is empty at this point
-      console.log(userInfos);
-      console.log(data.results);
-      const newUserInfos = [...userInfos, ...data.results];
-      setUserInfos(newUserInfos);
-      setNextPageNumber(data.info.page + 1);
+      const nextResult = await result.json();
+      setData((data) => [...data, ...nextResult.results]);
+      setPageNumber(nextResult.info.page + 1);
     };
-    fetchRandomData(nextPageNumber);
+    fetchData(pageNumber);
   };
 
   useEffect(() => {
-    fetchNextUser();
+    fetchUsers();
   }, []);
 
   return (
     <div className="App">
-      <div>
-        {userInfos &&
-          userInfos.map((user) => {
-            return (
-              <div key={user.email}>
-                <div>{user.gender}</div>
-                <img src={user.picture?.thumbnail} alt="hey" />
-              </div>
-            );
-          })}
-      </div>
-      <button onClick={fetchNextUser}>Fetch next user</button>
+      {data &&
+        data.map((item) => {
+          return (
+            <div key={item.email}>
+              <div>{item.gender}</div>
+              <img src={item.picture.thumbnail} />
+            </div>
+          );
+        })}
+      <button onClick={fetchUsers}>Fetch Users</button>
     </div>
   );
 };
